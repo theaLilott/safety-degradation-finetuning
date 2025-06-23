@@ -1,0 +1,39 @@
+# Core data science and machine learning
+numpy==1.24
+pandas==1.5
+scikit-learn
+torch==2.7.0
+tqdm
+
+# Hugging Face packages
+transformers
+peft
+trl
+huggingface_hub
+accelerate
+bitsandbytes>=0.41.0  # Important for QLoRA
+optimum
+evaluate
+
+# Visualization and notebook tools
+matplotlib
+ipython
+ipywidgets
+jupyterlab
+notebook
+
+# Development and testing
+pytest
+ruff
+typer
+python-dotenv
+
+# Logging and documentation
+loguru
+mkdocs
+wandb
+
+# AI-specific tools
+openai
+
+
