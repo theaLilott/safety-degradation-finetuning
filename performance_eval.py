@@ -16,29 +16,30 @@ from typing import Dict, List, Optional, Tuple, Any
 import evaluate
 
 
-class UnifiedMTPerformanceEvaluator:
+class UnifiedPerformanceEvaluator:
     """
-    Unified MT Performance evaluator that handles LoRA, QLoRA, and full fine-tuning checkpoints
-    Evaluates translation quality using chrF metric only (lightweight version)
+    Unified Performance evaluator that handles LoRA, QLoRA, and full fine-tuning checkpoints
+    with improved checkpoint management
     """
     def __init__(self, 
-                 base_model_name: str,
-                 mt_dataset_name: str,
+                 base_model_name: str, 
                  device: str = "auto", 
+                 sample_size: Optional[int] = 500, 
                  random_seed: int = 42):
         """
-        Initialize the unified evaluator for MT performance.
+        Initialize the unified evaluator for AdvBench dataset.
         
         Args:
             base_model_name: The base model name or path for tokenizer and base model loading
-            mt_dataset_name: HuggingFace dataset name for the filtered MT preference dataset
             device: Device to run inference on
-            random_seed: Random seed for reproducible evaluation
+            sample_size: Number of examples to evaluate (None for full dataset)
+            random_seed: Random seed for reproducible sampling
         """
         self.base_model_name = base_model_name
-        self.mt_dataset_name = mt_dataset_name
         self.device = device if device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.sample_size = sample_size
         self.random_seed = random_seed
+        self.chrf = evaluate.load("chrf")
         
         # Load tokenizer
         print(f"Loading tokenizer from: {self.base_model_name}")
@@ -46,43 +47,37 @@ class UnifiedMTPerformanceEvaluator:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             
-        # Load evaluation dataset (test split)
-        self.load_dataset()
+        # Load evaluation dataset with sampling
+        self.load_dataset(sample_size=sample_size, random_seed=random_seed)
+    
         
-        # Initialize chrF metric
-        self.init_chrf()
 
-    def load_dataset(self):
-        """Load the filtered MT preference dataset test split"""
+
+    def load_dataset(self, sample_size: Optional[int] = None, random_seed: int = 42):
+        """Load the AdvBench dataset with optional sampling"""
         try:
-            ds = load_dataset(self.mt_dataset_name)
-            self.dataset = pd.DataFrame(ds['test'])
-            print(f"Loaded MT performance dataset with {len(self.dataset)} test samples")
+            ds = load_dataset("safe-llm-finetune/mt-pref-latin-to-english")
+            full_dataset = pd.DataFrame(ds['test'])
+            print(f"Loaded test dataset with {len(full_dataset)} samples")
             
-            required_columns = ['source_text', 'chosen', 'source_language']
+            required_columns = ["source_text", "chosen"]
             for col in required_columns:
-                if col not in self.dataset.columns:
-                    raise ValueError(f"MT dataset must contain '{col}' column")
-            
-            # Show language distribution
-            lang_dist = self.dataset['source_language'].value_counts()
-            print("Language distribution in test set:")
-            for lang, count in lang_dist.items():
-                print(f"  {lang}: {count}")
+                if col not in full_dataset.columns:
+                    raise ValueError(f"Test dataset must contain '{col}' column")
                 
-        except Exception as e:
-            print(f"Error loading MT dataset: {e}")
-            raise
-
-    def init_chrf(self):
-        """Initialize chrF metric"""
-        try:
-            print("Loading chrF metric...")
-            self.chrf = evaluate.load("chrf")
-            print("chrF metric initialized successfully")
+            if sample_size and sample_size < len(full_dataset):
+                print(f"Sampling {sample_size} examples from {len(full_dataset)} total examples")
+                self.dataset = full_dataset.sample(n=sample_size, random_state=random_seed).reset_index(drop=True)
+                self.sampled_indices = self.dataset.index.tolist()
+                print(f"Using random seed {random_seed} for reproducible sampling")
+            else:
+                self.dataset = full_dataset
+                self.sampled_indices = None
+                
+            print(f"Final evaluation dataset size: {len(self.dataset)} samples")
             
         except Exception as e:
-            print(f"Error initializing chrF metric: {e}")
+            print(f"Error loading Test dataset: {e}")
             raise
 
     def detect_checkpoint_type(self, checkpoint_path: Path) -> str:
@@ -147,7 +142,7 @@ class UnifiedMTPerformanceEvaluator:
                 
             elif checkpoint_type == "qlora":
                 # QLoRA checkpoint - load fresh quantized base model
-                quantization_config = BitsAndBytesConfig(
+                quantization_config =  BitsAndBytesConfig(
                     load_in_4bit=True,                      
                     bnb_4bit_use_double_quant=True,         
                     bnb_4bit_quant_type="nf4",              
@@ -176,7 +171,10 @@ class UnifiedMTPerformanceEvaluator:
                 
                 # Apply adapter to fresh base model
                 model = PeftModel.from_pretrained(base_model, checkpoint_path)
+                
                 return model
+            
+            
                 
             else:
                 raise ValueError(f"Unknown checkpoint type: {checkpoint_type}")
@@ -185,14 +183,12 @@ class UnifiedMTPerformanceEvaluator:
             print(f"Error loading checkpoint {checkpoint_path}: {e}")
             return None
 
-    def generate_translation(self, model, source_text: str, source_language: str, max_length: int = 256) -> str:
-        """Generate translation from model using the same format as training data"""
+    def generate_response(self, model, prompt: str, max_length: int = 256, temperature: float = 0.7) -> str:
+        """Generate response from model using chat template"""
         try:
-            # Create the same prompt format as in the original dataset
-            prompt = f"Translate the following {source_language.title()} source text to English:\n{source_language.title()}: {source_text}\nEnglish:"
             
-            # Format using Llama chat template
             formatted_prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+                
             
             # Tokenize and generate
             inputs = self.tokenizer(
@@ -212,26 +208,17 @@ class UnifiedMTPerformanceEvaluator:
                     eos_token_id=self.tokenizer.eos_token_id
                 )
             
-            translation = self.tokenizer.decode(
+            response = self.tokenizer.decode(
                 outputs[0][inputs['input_ids'].shape[1]:], 
                 skip_special_tokens=True
             ).strip()
             
-            return translation
+            return response
             
         except Exception as e:
-            print(f"Error generating translation: {e}")
+            print(f"Error generating response: {e}")
             return ""
 
-
-    def compute_chrf(self, predictions: List[str], references: List[str]) -> float:
-        """Compute chrF score"""
-        try:
-            chrf_result = self.chrf.compute(predictions=predictions, references=references)
-            return chrf_result['score']
-        except Exception as e:
-            print(f"Error computing chrF: {e}")
-            return None
 
     def load_existing_results(self, output_file: str) -> List[Dict]:
         """Load existing results from CSV file"""
@@ -254,7 +241,7 @@ class UnifiedMTPerformanceEvaluator:
         except Exception as e:
             print(f"Error saving results to {output_file}: {e}")
 
-    def save_checkpoint_summary(self, checkpoint_summaries: List[Dict], summary_file: str):
+    def save_checkpoint_summary(self, checkpoint_summaries: List[Dict], summary_file: str = "advbench_checkpoint_summary.json"):
         """Save checkpoint summary to JSON file"""
         try:
             with open(summary_file, 'w') as f:
@@ -274,7 +261,7 @@ class UnifiedMTPerformanceEvaluator:
         for result in existing_results:
             checkpoint = result['checkpoint']
             checkpoint_counts.setdefault(checkpoint, 0)
-            if 'error' not in str(result.get('model_translation', '')).lower():
+            if 'error' not in str(result.get('model_response', '')).lower():
                 checkpoint_counts[checkpoint] += 1
         
         # Return checkpoints that have been fully evaluated
@@ -285,20 +272,20 @@ class UnifiedMTPerformanceEvaluator:
                           model, 
                           checkpoint_name: str, 
                           checkpoint_type: str,
-                          batch_size: int = 8, 
-                          output_file: str = "mt_performance_results.csv", 
-                          save_frequency: int = 20) -> Tuple[List[Dict], float]:
-        """Evaluate a single checkpoint on translation performance"""
+                          batch_size: int = 4, 
+                          output_file: str = "advbench_results.csv", 
+                          save_frequency: int = 10) -> Tuple[List[Dict], float]:
+        """Evaluate a single checkpoint"""
         results = []
-        all_predictions = []
-        all_references = []
+        responses = []
+        reference = []
         
         print(f"Evaluating {checkpoint_type} checkpoint: {checkpoint_name}")
         
         # Check for existing results
         existing_results = self.load_existing_results(output_file)
-        completed_sources = {r['source_text'] for r in existing_results if r['checkpoint'] == checkpoint_name}
-        print(f"Found {len(completed_sources)} already completed translations for {checkpoint_name}")
+        completed_prompts = {r['prompt'] for r in existing_results if r['checkpoint'] == checkpoint_name}
+        print(f"Found {len(completed_prompts)} already completed prompts for {checkpoint_name}")
         
         processed_count = 0
         
@@ -306,40 +293,33 @@ class UnifiedMTPerformanceEvaluator:
             batch = self.dataset.iloc[i:i+batch_size]
             
             for _, row in batch.iterrows():
-                source_text = row['source_text']
-                source_language = row['source_language']
-                chosen_response = row['chosen']
+                prompt = row['source_text']
                 
-                if source_text in completed_sources:
+                if prompt in completed_prompts:
                     continue
                 
                 try:
-                    # Generate model translation
-                    model_translation = self.generate_translation(model, source_text, source_language)
+                    # Generate model response
+                    model_response = self.generate_response(model, prompt)
                     
-                    # Extract reference translation from chosen response
-                    reference_translation = chosen_response
-                    
-                    # Store for metric computation
-                    all_predictions.append(model_translation)
-                    all_references.append(reference_translation)
                     
                     # Create result record
                     result = {
                         'checkpoint': checkpoint_name,
                         'checkpoint_type': checkpoint_type,
-                        'source_language': source_language,
-                        'source_text': source_text,
-                        'reference_translation': reference_translation,
-                        'model_translation': model_translation,
-                        'translation_length': len(model_translation),
-                        'reference_length': len(reference_translation),
+                        'prompt': prompt,
+                        'model_response': model_response,
+                        'reference_response': row["chosen"],
+                        'response_length': len(model_response),
                         'timestamp': datetime.now().isoformat(),
-                        'dataset_size': len(self.dataset),
+                        'sample_size': len(self.dataset),
                         'random_seed': self.random_seed
                     }
                     
                     results.append(result)
+                    responses.append(model_response)
+                    reference.append([row["chosen"]])
+                    
                     processed_count += 1
                     
                     # Save intermediate results
@@ -347,18 +327,16 @@ class UnifiedMTPerformanceEvaluator:
                         self.append_results(results[-save_frequency:], output_file)
                     
                 except Exception as e:
-                    print(f"Error processing translation for {checkpoint_name}: {e}")
+                    print(f"Error processing prompt for {checkpoint_name}: {e}")
                     error_result = {
                         'checkpoint': checkpoint_name,
                         'checkpoint_type': checkpoint_type,
-                        'source_language': source_language,
-                        'source_text': source_text,
-                        'reference_translation': chosen_response,
-                        'model_translation': f"ERROR: {str(e)}",
-                        'translation_length': 0,
-                        'reference_length': len(chosen_response),
+                        'prompt': prompt,
+                        'model_response': f"ERROR: {str(e)}",
+                        'reference_response': row["chosen"],
+                        'response_length': 0,
                         'timestamp': datetime.now().isoformat(),
-                        'dataset_size': len(self.dataset),
+                        'sample_size': len(self.dataset),
                         'random_seed': self.random_seed
                     }
                     self.append_results([error_result], output_file)
@@ -372,21 +350,18 @@ class UnifiedMTPerformanceEvaluator:
         if results and (processed_count % save_frequency != 0):
             self.append_results(results[-(processed_count % save_frequency):], output_file)
         
-        # Compute overall chrF score
-        if all_predictions and all_references:
-            chrf_score = self.compute_chrf(all_predictions, all_references)
-        else:
-            chrf_score = None
+        # Calculate average refusal rate
+        chrf = self.chrf.compute(predictions=responses, references=reference)["score"]
         
-        print(f"Checkpoint {checkpoint_name} ({checkpoint_type}) - chrF: {chrf_score:.3f if chrf_score is not None else 'N/A'}")
+        print(f"Checkpoint {checkpoint_name} ({checkpoint_type}) - ChrF Score: {chrf:.3f}")
         
-        return results, chrf_score
+        return results, chrf
 
     def run_evaluation(self, 
                       checkpoint_dir: str, 
-                      output_file: str = "mt_performance_results.csv", 
-                      batch_size: int = 8, 
-                      save_frequency: int = 20, 
+                      output_file: str = "performance_unified_results.csv", 
+                      batch_size: int = 4, 
+                      save_frequency: int = 10, 
                       resume: bool = True) -> Tuple[List[Dict], List[Dict]]:
         """Run evaluation on all checkpoints"""
         checkpoint_paths = self.get_checkpoint_paths(checkpoint_dir)
@@ -430,7 +405,7 @@ class UnifiedMTPerformanceEvaluator:
                 continue
             
             try:
-                results, chrf_score = self.evaluate_checkpoint(
+                results, chrf = self.evaluate_checkpoint(
                     model, checkpoint_name, checkpoint_type, batch_size, output_file, save_frequency
                 )
                 
@@ -440,12 +415,12 @@ class UnifiedMTPerformanceEvaluator:
                 summary = {
                     'checkpoint': checkpoint_name,
                     'checkpoint_type': checkpoint_type,
-                    'chrf_score': chrf_score,
+                    'chrf': chrf,
                     'total_samples': len(results),
                     'completed_at': datetime.now().isoformat(),
-                    'dataset_size': len(self.dataset),
+                    'sample_size': len(self.dataset),
                     'random_seed': self.random_seed,
-                    'dataset': 'MT-Pref-Filtered'
+                    'dataset': 'performance'
                 }
                 
                 # Update summaries (remove old entry if exists)
@@ -461,7 +436,7 @@ class UnifiedMTPerformanceEvaluator:
                     'checkpoint_type': checkpoint_type,
                     'error': str(e),
                     'failed_at': datetime.now().isoformat(),
-                    'dataset': 'MT-Pref-Filtered'
+                    'dataset': 'performance'
                 }
                 checkpoint_summaries.append(error_summary)
                 self.save_checkpoint_summary(checkpoint_summaries, summary_file)
@@ -475,14 +450,13 @@ class UnifiedMTPerformanceEvaluator:
                 print(f"Memory cleaned up after {checkpoint_name}")
         
         # Final summary
-        print("\n" + "="*60 + "\nFINAL MT PERFORMANCE EVALUATION SUMMARY\n" + "="*60)
+        print("\n" + "="*60 + "\nFINAL PERFORMANCE EVALUATION SUMMARY\n" + "="*60)
         successful_summaries = [s for s in checkpoint_summaries if 'error' not in s]
         
         if successful_summaries:
             print("Checkpoint Results:")
             for summary in successful_summaries:
-                chrf_str = f"{summary['chrf_score']:.3f}" if summary['chrf_score'] is not None else "N/A"
-                print(f"  {summary['checkpoint']} ({summary['checkpoint_type']}): chrF={chrf_str}")
+                print(f"  {summary['checkpoint']} ({summary['checkpoint_type']}): {summary['chrf']:.3f} chrF")
             
             # Group by checkpoint type for analysis
             type_summaries = {}
@@ -490,22 +464,15 @@ class UnifiedMTPerformanceEvaluator:
                 ctype = summary['checkpoint_type']
                 if ctype not in type_summaries:
                     type_summaries[ctype] = []
-                score = summary['chrf_score']
-                if score is not None:
-                    type_summaries[ctype].append(score)
+                type_summaries[ctype].append(summary['chrf'])
             
-            print("\nAverage chrF by checkpoint type:")
-            for ctype, scores in type_summaries.items():
-                if scores:
-                    avg_score = sum(scores) / len(scores)
-                    print(f"  {ctype}: {avg_score:.3f} average ({len(scores)} checkpoints)")
+            print("\nAverage by checkpoint type:")
+            for ctype, rates in type_summaries.items():
+                avg_rate = sum(rates) / len(rates)
+                print(f"  {ctype}: {avg_rate:.3f} chrf ({len(rates)} checkpoints)")
             
-            # Overall average
-            all_scores = [s['chrf_score'] for s in successful_summaries if s['chrf_score'] is not None]
-            if all_scores:
-                overall_avg = sum(all_scores) / len(all_scores)
-                print(f"\nOverall average chrF: {overall_avg:.3f}")
-            
+            overall_avg = sum(s['chrf'] for s in successful_summaries) / len(successful_summaries)
+            print(f"\nOverall chrF: {overall_avg:.3f}")
         else:
             print("No successful evaluations completed.")
         
@@ -513,23 +480,19 @@ class UnifiedMTPerformanceEvaluator:
 
 
 def main():
-    """Example usage for unified MT performance evaluation"""
+    """Example usage for unified checkpoint evaluation"""
     # Configuration
-     # Configuration
     LR = 1e-4
     BS = 4
-    MODE = "dpo"
+    MODE = "lora"
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
     MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
     CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
     
-    MT_DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"  # Your filtered dataset
-
-    
     # Initialize evaluator
-    evaluator = UnifiedMTPerformanceEvaluator(
+    evaluator = UnifiedPerformanceEvaluator(
         base_model_name=BASE_MODEL_NAME,
-        mt_dataset_name=MT_DATASET_NAME,
+        sample_size=None,  # Use None for the full dataset
         random_seed=42
     )
     
@@ -537,12 +500,12 @@ def main():
     results, summaries = evaluator.run_evaluation(
         checkpoint_dir=CHECKPOINT_DIR,
         output_file=f"results/performance/{MODEL_CODE}.csv",
-        batch_size=8,  # Increased since no COMET overhead
-        save_frequency=20, 
+        batch_size=2,  # Adjust based on available memory
+        save_frequency=10, 
         resume=True
     )
     
-    print(f"\nMT Performance evaluation completed! Results saved.")
+    print(f"\nUnified evaluation completed! Results saved to performance folder")
 
 
 if __name__ == "__main__":
