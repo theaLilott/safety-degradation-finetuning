@@ -4,6 +4,10 @@ from datasets import Dataset, DatasetDict, load_dataset
 from collections import defaultdict
 import random
 from typing import Dict, List, Tuple
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def extract_translation_info(prompt: str) -> Tuple[str, str]:
     """
@@ -156,7 +160,7 @@ def push_to_hub(dataset: DatasetDict,
     Push the processed dataset to HuggingFace Hub.
     """
     print(f"Pushing dataset to {repo_name}...")
-    dataset.push_to_hub(repo_name, private=private, token="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")
+    dataset.push_to_hub(repo_name, private=private, token= os.getenv("HF_TOKEN"))
     print("Dataset pushed successfully!")
 
 def main():
