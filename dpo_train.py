@@ -23,7 +23,7 @@ if HF_TOKEN:
 
 # --- 1. Enhanced Configuration ---
 LR = 1e-4
-BS = 8
+BS = 4
 
 
 MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"

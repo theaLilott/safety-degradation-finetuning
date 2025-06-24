@@ -223,12 +223,6 @@ class UnifiedMTPerformanceEvaluator:
             print(f"Error generating translation: {e}")
             return ""
 
-    def extract_reference_translation(self, chosen_response: str) -> str:
-        """Extract clean translation from chosen response (remove special tokens)"""
-        # Remove assistant tokens and other formatting
-        clean_translation = re.sub(r'<\|im_start\|>assistant\s*', '', chosen_response)
-        clean_translation = re.sub(r'<\|im_end\|>.*$', '', clean_translation)
-        return clean_translation.strip()
 
     def compute_chrf(self, predictions: List[str], references: List[str]) -> float:
         """Compute chrF score"""
@@ -324,7 +318,7 @@ class UnifiedMTPerformanceEvaluator:
                     model_translation = self.generate_translation(model, source_text, source_language)
                     
                     # Extract reference translation from chosen response
-                    reference_translation = self.extract_reference_translation(chosen_response)
+                    reference_translation = chosen_response
                     
                     # Store for metric computation
                     all_predictions.append(model_translation)
@@ -359,10 +353,10 @@ class UnifiedMTPerformanceEvaluator:
                         'checkpoint_type': checkpoint_type,
                         'source_language': source_language,
                         'source_text': source_text,
-                        'reference_translation': self.extract_reference_translation(chosen_response),
+                        'reference_translation': chosen_response,
                         'model_translation': f"ERROR: {str(e)}",
                         'translation_length': 0,
-                        'reference_length': len(self.extract_reference_translation(chosen_response)),
+                        'reference_length': len(chosen_response),
                         'timestamp': datetime.now().isoformat(),
                         'dataset_size': len(self.dataset),
                         'random_seed': self.random_seed
@@ -521,10 +515,16 @@ class UnifiedMTPerformanceEvaluator:
 def main():
     """Example usage for unified MT performance evaluation"""
     # Configuration
+     # Configuration
+    LR = 1e-4
+    BS = 4
+    MODE = "dpo"
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
+    MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
+    CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
+    
     MT_DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"  # Your filtered dataset
-    MODELCODE = "llama-3.2-1b-it-translation-qlora-r8-lr2e-4-bs8"
-    CHECKPOINT_DIR = f"models/{MODELCODE}"  # Directory containing mixed checkpoint types
+
     
     # Initialize evaluator
     evaluator = UnifiedMTPerformanceEvaluator(
@@ -536,7 +536,7 @@ def main():
     # Run evaluation
     results, summaries = evaluator.run_evaluation(
         checkpoint_dir=CHECKPOINT_DIR,
-        output_file=f"results/performance/{MODELCODE}.csv",
+        output_file=f"results/performance/{MODEL_CODE}.csv",
         batch_size=8,  # Increased since no COMET overhead
         save_frequency=20, 
         resume=True

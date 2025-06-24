@@ -508,9 +508,12 @@ class UnifiedAdvBenchEvaluator:
 def main():
     """Example usage for unified checkpoint evaluation"""
     # Configuration
+    LR = 1e-4
+    BS = 4
+    MODE = "dpo"
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-    MODELCODE = "llama-3.2-1b-it-translation-qlora-r8-lr2e-4-bs8"
-    CHECKPOINT_DIR = f"models/{MODELCODE}"  # Directory containing mixed checkpoint types
+    MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
+    CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
     
     # Initialize evaluator
     evaluator = UnifiedAdvBenchEvaluator(
@@ -522,7 +525,7 @@ def main():
     # Run evaluation
     results, summaries = evaluator.run_evaluation(
         checkpoint_dir=CHECKPOINT_DIR,
-        output_file=f"results/advbench/{MODELCODE}.csv",
+        output_file=f"results/advbench/{MODEL_CODE}.csv",
         batch_size=2,  # Adjust based on available memory
         save_frequency=10, 
         resume=True
