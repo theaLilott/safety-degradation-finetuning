@@ -508,7 +508,7 @@ class UnifiedAdvBenchEvaluator:
 def main():
     """Example usage for unified checkpoint evaluation"""
     # Configuration
-    LR = 1-4
+    LR = 1e-4
     BS = 4
     MODE = "dpo"
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
