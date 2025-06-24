@@ -89,7 +89,7 @@ filtered_size = len(dataset)
 print(f"Filtered dataset size: {filtered_size} ({original_size - filtered_size} examples removed)")
 
 # Apply the formatting function
-formatted_dataset = dataset.map(format_prompt)
+formatted_dataset = dataset.map(format_prompt).remove_columns(["prompt"])
 
 print("Dataset loaded, filtered, and formatted.")
 print(f"Example 0:\n{formatted_dataset[0]['text']}")
