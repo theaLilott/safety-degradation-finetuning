@@ -1,5 +1,6 @@
 import os
 import re
+import csv
 import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
@@ -13,34 +14,30 @@ import time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 import evaluate
-import numpy as np
 
 
-class UnifiedPerformanceEvaluator:
+class UnifiedMTPerformanceEvaluator:
     """
-    Unified Performance evaluator that handles LoRA, QLoRA, and full fine-tuning checkpoints
-    with BLEU score evaluation on English-to-Spanish translation
+    Unified MT Performance evaluator that handles LoRA, QLoRA, and full fine-tuning checkpoints
+    Evaluates translation quality using chrF metric only (lightweight version)
     """
     def __init__(self, 
-                 base_model_name: str, 
+                 base_model_name: str,
+                 mt_dataset_name: str,
                  device: str = "auto", 
-                 val_size: int = 1000,
-                 val_start_idx: int = 5000,
                  random_seed: int = 42):
         """
-        Initialize the unified performance evaluator.
+        Initialize the unified evaluator for MT performance.
         
         Args:
             base_model_name: The base model name or path for tokenizer and base model loading
+            mt_dataset_name: HuggingFace dataset name for the filtered MT preference dataset
             device: Device to run inference on
-            val_size: Number of validation examples to use
-            val_start_idx: Starting index for validation set (should be after training data)
-            random_seed: Random seed for reproducible sampling
+            random_seed: Random seed for reproducible evaluation
         """
         self.base_model_name = base_model_name
+        self.mt_dataset_name = mt_dataset_name
         self.device = device if device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
-        self.val_size = val_size
-        self.val_start_idx = val_start_idx
         self.random_seed = random_seed
         
         # Load tokenizer
@@ -49,45 +46,43 @@ class UnifiedPerformanceEvaluator:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             
-        # Load evaluation metrics
-        self.bleu_metric = evaluate.load("bleu")
-        self.rouge_metric = evaluate.load("rouge")
-        
-        # Load evaluation dataset
+        # Load evaluation dataset (test split)
         self.load_dataset()
         
-        print(f"Performance evaluator initialized with {len(self.dataset)} validation examples")
+        # Initialize chrF metric
+        self.init_chrf()
 
     def load_dataset(self):
-        """Load the English-to-Spanish validation dataset"""
+        """Load the filtered MT preference dataset test split"""
         try:
-            # Load the dataset
-            ds = load_dataset("okezieowen/english_to_spanish")
-            full_dataset = pd.DataFrame(ds['train'])
-            print(f"Loaded full English-to-Spanish dataset with {len(full_dataset)} samples")
+            ds = load_dataset(self.mt_dataset_name)
+            self.dataset = pd.DataFrame(ds['test'])
+            print(f"Loaded MT performance dataset with {len(self.dataset)} test samples")
             
-            # Verify required columns exist
-            if 'English' not in full_dataset.columns or 'Spanish' not in full_dataset.columns:
-                raise ValueError("Dataset must contain 'English' and 'Spanish' columns")
+            required_columns = ['source_text', 'chosen', 'source_language']
+            for col in required_columns:
+                if col not in self.dataset.columns:
+                    raise ValueError(f"MT dataset must contain '{col}' column")
             
-            # Create validation set starting from val_start_idx
-            val_end_idx = self.val_start_idx + self.val_size
-            if val_end_idx > len(full_dataset):
-                print(f"Warning: Requested validation set goes beyond dataset size. Using examples {self.val_start_idx}:{len(full_dataset)}")
-                val_end_idx = len(full_dataset)
-            
-            self.dataset = full_dataset.iloc[self.val_start_idx:val_end_idx].reset_index(drop=True)
-            print(f"Using validation examples {self.val_start_idx}:{val_end_idx} ({len(self.dataset)} total)")
-            
-            # Show some examples
-            print("\nExample validation pairs:")
-            for i in range(min(3, len(self.dataset))):
-                print(f"  EN: {self.dataset.iloc[i]['English']}")
-                print(f"  ES: {self.dataset.iloc[i]['Spanish']}")
-                print()
+            # Show language distribution
+            lang_dist = self.dataset['source_language'].value_counts()
+            print("Language distribution in test set:")
+            for lang, count in lang_dist.items():
+                print(f"  {lang}: {count}")
+                
+        except Exception as e:
+            print(f"Error loading MT dataset: {e}")
+            raise
+
+    def init_chrf(self):
+        """Initialize chrF metric"""
+        try:
+            print("Loading chrF metric...")
+            self.chrf = evaluate.load("chrf")
+            print("chrF metric initialized successfully")
             
         except Exception as e:
-            print(f"Error loading English-to-Spanish dataset: {e}")
+            print(f"Error initializing chrF metric: {e}")
             raise
 
     def detect_checkpoint_type(self, checkpoint_path: Path) -> str:
@@ -190,17 +185,13 @@ class UnifiedPerformanceEvaluator:
             print(f"Error loading checkpoint {checkpoint_path}: {e}")
             return None
 
-    def format_translation_prompt(self, spanish_text: str) -> str:
-        """Format the English text as a translation prompt"""
-        return f"Translate the following Spanish text to English: {spanish_text}"
-
-    def generate_translation(self, model, spanish_text: str, max_length: int = 128, temperature: float = 0.3) -> str:
-        """Generate English translation from Spanish text"""
+    def generate_translation(self, model, source_text: str, source_language: str, max_length: int = 256) -> str:
+        """Generate translation from model using the same format as training data"""
         try:
-            # Create translation prompt
-            prompt = self.format_translation_prompt(spanish_text)
+            # Create the same prompt format as in the original dataset
+            prompt = f"Translate the following {source_language.title()} source text to English:\n{source_language.title()}: {source_text}\nEnglish:"
             
-            # Format using chat template - adjust this based on your model's expected format
+            # Format using Llama chat template
             formatted_prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
             
             # Tokenize and generate
@@ -216,8 +207,7 @@ class UnifiedPerformanceEvaluator:
                 outputs = model.generate(
                     **inputs, 
                     max_new_tokens=max_length, 
-                    temperature=temperature,
-                    do_sample=True if temperature > 0 else False,
+                    do_sample=False, 
                     pad_token_id=self.tokenizer.eos_token_id,
                     eos_token_id=self.tokenizer.eos_token_id
                 )
@@ -233,60 +223,21 @@ class UnifiedPerformanceEvaluator:
             print(f"Error generating translation: {e}")
             return ""
 
-    def compute_metrics(self, predictions: List[str], references: List[str]) -> Dict[str, float]:
-        """Compute BLEU and ROUGE scores and related metrics"""
+    def extract_reference_translation(self, chosen_response: str) -> str:
+        """Extract clean translation from chosen response (remove special tokens)"""
+        # Remove assistant tokens and other formatting
+        clean_translation = re.sub(r'<\|im_start\|>assistant\s*', '', chosen_response)
+        clean_translation = re.sub(r'<\|im_end\|>.*$', '', clean_translation)
+        return clean_translation.strip()
+
+    def compute_chrf(self, predictions: List[str], references: List[str]) -> float:
+        """Compute chrF score"""
         try:
-            # Ensure we have valid predictions and references
-            valid_pairs = [(pred, ref) for pred, ref in zip(predictions, references) 
-                          if pred.strip() and ref.strip()]
-            
-            if not valid_pairs:
-                return {
-                    "bleu": 0.0, "rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0, "rougeLsum": 0.0,
-                    "valid_translations": 0, "total_examples": len(predictions)
-                }
-            
-            valid_predictions, valid_references = zip(*valid_pairs)
-            
-            # Compute BLEU score
-            bleu_result = self.bleu_metric.compute(
-                predictions=list(valid_predictions), 
-                references=[[ref] for ref in valid_references]  # BLEU expects list of lists for references
-            )
-            
-            # Compute ROUGE scores
-            rouge_result = self.rouge_metric.compute(
-                predictions=list(valid_predictions),
-                references=list(valid_references)
-            )
-            
-            return {
-                # BLEU metrics
-                "bleu": bleu_result["bleu"],
-                "bleu_1": bleu_result["precisions"][0] if len(bleu_result["precisions"]) > 0 else 0.0,
-                "bleu_2": bleu_result["precisions"][1] if len(bleu_result["precisions"]) > 1 else 0.0,
-                "bleu_3": bleu_result["precisions"][2] if len(bleu_result["precisions"]) > 2 else 0.0,
-                "bleu_4": bleu_result["precisions"][3] if len(bleu_result["precisions"]) > 3 else 0.0,
-                "brevity_penalty": bleu_result["brevity_penalty"],
-                "length_ratio": bleu_result["length_ratio"],
-                
-                # ROUGE metrics
-                "rouge1": rouge_result["rouge1"],
-                "rouge2": rouge_result["rouge2"],
-                "rougeL": rouge_result["rougeL"],
-                "rougeLsum": rouge_result["rougeLsum"],
-                
-                # Summary stats
-                "valid_translations": len(valid_pairs),
-                "total_examples": len(predictions)
-            }
-            
+            chrf_result = self.chrf.compute(predictions=predictions, references=references)
+            return chrf_result['score']
         except Exception as e:
-            print(f"Error computing metrics: {e}")
-            return {
-                "bleu": 0.0, "rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0, "rougeLsum": 0.0,
-                "error": str(e), "valid_translations": 0, "total_examples": len(predictions)
-            }
+            print(f"Error computing chrF: {e}")
+            return None
 
     def load_existing_results(self, output_file: str) -> List[Dict]:
         """Load existing results from CSV file"""
@@ -309,7 +260,7 @@ class UnifiedPerformanceEvaluator:
         except Exception as e:
             print(f"Error saving results to {output_file}: {e}")
 
-    def save_checkpoint_summary(self, checkpoint_summaries: List[Dict], summary_file: str = "performance_checkpoint_summary.json"):
+    def save_checkpoint_summary(self, checkpoint_summaries: List[Dict], summary_file: str):
         """Save checkpoint summary to JSON file"""
         try:
             with open(summary_file, 'w') as f:
@@ -329,33 +280,31 @@ class UnifiedPerformanceEvaluator:
         for result in existing_results:
             checkpoint = result['checkpoint']
             checkpoint_counts.setdefault(checkpoint, 0)
-            if 'error' not in str(result.get('translation', '')).lower():
+            if 'error' not in str(result.get('model_translation', '')).lower():
                 checkpoint_counts[checkpoint] += 1
         
         # Return checkpoints that have been fully evaluated
-        total_examples = len(self.dataset)
-        return {cp for cp, count in checkpoint_counts.items() if count >= total_examples}
+        total_questions = len(self.dataset)
+        return {cp for cp, count in checkpoint_counts.items() if count >= total_questions}
 
     def evaluate_checkpoint(self, 
                           model, 
                           checkpoint_name: str, 
                           checkpoint_type: str,
-                          batch_size: int = 4, 
-                          output_file: str = "performance_results.csv", 
-                          save_frequency: int = 50) -> Tuple[List[Dict], Dict[str, float]]:
-        """Evaluate a single checkpoint"""
+                          batch_size: int = 8, 
+                          output_file: str = "mt_performance_results.csv", 
+                          save_frequency: int = 20) -> Tuple[List[Dict], float]:
+        """Evaluate a single checkpoint on translation performance"""
         results = []
-        predictions = []
-        references = []
+        all_predictions = []
+        all_references = []
         
         print(f"Evaluating {checkpoint_type} checkpoint: {checkpoint_name}")
         
         # Check for existing results
         existing_results = self.load_existing_results(output_file)
-        completed_examples = {(r['checkpoint'], r['spanish_text']) for r in existing_results}
-        
-        already_completed = len([r for r in existing_results if r['checkpoint'] == checkpoint_name])
-        print(f"Found {already_completed} already completed examples for {checkpoint_name}")
+        completed_sources = {r['source_text'] for r in existing_results if r['checkpoint'] == checkpoint_name}
+        print(f"Found {len(completed_sources)} already completed translations for {checkpoint_name}")
         
         processed_count = 0
         
@@ -363,32 +312,40 @@ class UnifiedPerformanceEvaluator:
             batch = self.dataset.iloc[i:i+batch_size]
             
             for _, row in batch.iterrows():
-                spanish_text = row['Spanish']
-                english_reference = row['English']
+                source_text = row['source_text']
+                source_language = row['source_language']
+                chosen_response = row['chosen']
                 
-                if (checkpoint_name, spanish_text) in completed_examples:
+                if source_text in completed_sources:
                     continue
                 
                 try:
-                    # Generate translation
-                    translation = self.generate_translation(model, spanish_text)
+                    # Generate model translation
+                    model_translation = self.generate_translation(model, source_text, source_language)
+                    
+                    # Extract reference translation from chosen response
+                    reference_translation = self.extract_reference_translation(chosen_response)
+                    
+                    # Store for metric computation
+                    all_predictions.append(model_translation)
+                    all_references.append(reference_translation)
                     
                     # Create result record
                     result = {
                         'checkpoint': checkpoint_name,
                         'checkpoint_type': checkpoint_type,
-                        'spanish_text': spanish_text,
-                        'english_reference': english_reference,
-                        'translation': translation,
+                        'source_language': source_language,
+                        'source_text': source_text,
+                        'reference_translation': reference_translation,
+                        'model_translation': model_translation,
+                        'translation_length': len(model_translation),
+                        'reference_length': len(reference_translation),
                         'timestamp': datetime.now().isoformat(),
-                        'val_size': len(self.dataset),
-                        'val_start_idx': self.val_start_idx
+                        'dataset_size': len(self.dataset),
+                        'random_seed': self.random_seed
                     }
                     
                     results.append(result)
-                    predictions.append(translation)
-                    references.append(english_reference)
-                    
                     processed_count += 1
                     
                     # Save intermediate results
@@ -396,16 +353,19 @@ class UnifiedPerformanceEvaluator:
                         self.append_results(results[-save_frequency:], output_file)
                     
                 except Exception as e:
-                    print(f"Error processing example for {checkpoint_name}: {e}")
+                    print(f"Error processing translation for {checkpoint_name}: {e}")
                     error_result = {
                         'checkpoint': checkpoint_name,
                         'checkpoint_type': checkpoint_type,
-                        'spanish_text': spanish_text,
-                        'english_reference': english_reference,
-                        'translation': f"ERROR: {str(e)}",
+                        'source_language': source_language,
+                        'source_text': source_text,
+                        'reference_translation': self.extract_reference_translation(chosen_response),
+                        'model_translation': f"ERROR: {str(e)}",
+                        'translation_length': 0,
+                        'reference_length': len(self.extract_reference_translation(chosen_response)),
                         'timestamp': datetime.now().isoformat(),
-                        'val_size': len(self.dataset),
-                        'val_start_idx': self.val_start_idx
+                        'dataset_size': len(self.dataset),
+                        'random_seed': self.random_seed
                     }
                     self.append_results([error_result], output_file)
             
@@ -418,22 +378,23 @@ class UnifiedPerformanceEvaluator:
         if results and (processed_count % save_frequency != 0):
             self.append_results(results[-(processed_count % save_frequency):], output_file)
         
-        # Compute BLEU and ROUGE scores
-        metrics = self.compute_metrics(predictions, references)
+        # Compute overall chrF score
+        if all_predictions and all_references:
+            chrf_score = self.compute_chrf(all_predictions, all_references)
+        else:
+            chrf_score = None
         
-        print(f"Checkpoint {checkpoint_name} ({checkpoint_type}) - BLEU: {metrics['bleu']:.4f}, ROUGE-L: {metrics['rougeL']:.4f}")
-        print(f"  ROUGE-1: {metrics['rouge1']:.4f}, ROUGE-2: {metrics['rouge2']:.4f}")
-        print(f"  Valid translations: {metrics['valid_translations']}/{metrics['total_examples']}")
+        print(f"Checkpoint {checkpoint_name} ({checkpoint_type}) - chrF: {chrf_score:.3f if chrf_score is not None else 'N/A'}")
         
-        return results, metrics
+        return results, chrf_score
 
     def run_evaluation(self, 
                       checkpoint_dir: str, 
-                      output_file: str = "performance_unified_results.csv", 
-                      batch_size: int = 4, 
-                      save_frequency: int = 50, 
+                      output_file: str = "mt_performance_results.csv", 
+                      batch_size: int = 8, 
+                      save_frequency: int = 20, 
                       resume: bool = True) -> Tuple[List[Dict], List[Dict]]:
-        """Run performance evaluation on all checkpoints"""
+        """Run evaluation on all checkpoints"""
         checkpoint_paths = self.get_checkpoint_paths(checkpoint_dir)
         
         if not checkpoint_paths:
@@ -468,14 +429,14 @@ class UnifiedPerformanceEvaluator:
                 print(f"Skipping already completed checkpoint: {checkpoint_name}")
                 continue
             
-            print(f"\n{'='*60}\nStarting performance evaluation of {checkpoint_type} checkpoint: {checkpoint_name}\n{'='*60}")
+            print(f"\n{'='*60}\nStarting evaluation of {checkpoint_type} checkpoint: {checkpoint_name}\n{'='*60}")
             
             model = self.load_checkpoint(checkpoint_path, checkpoint_type)
             if model is None:
                 continue
             
             try:
-                results, metrics = self.evaluate_checkpoint(
+                results, chrf_score = self.evaluate_checkpoint(
                     model, checkpoint_name, checkpoint_type, batch_size, output_file, save_frequency
                 )
                 
@@ -485,26 +446,12 @@ class UnifiedPerformanceEvaluator:
                 summary = {
                     'checkpoint': checkpoint_name,
                     'checkpoint_type': checkpoint_type,
-                    # BLEU metrics
-                    'bleu_score': metrics['bleu'],
-                    'bleu_1': metrics.get('bleu_1', 0.0),
-                    'bleu_2': metrics.get('bleu_2', 0.0),
-                    'bleu_3': metrics.get('bleu_3', 0.0),
-                    'bleu_4': metrics.get('bleu_4', 0.0),
-                    'brevity_penalty': metrics.get('brevity_penalty', 0.0),
-                    'length_ratio': metrics.get('length_ratio', 0.0),
-                    # ROUGE metrics
-                    'rouge1': metrics.get('rouge1', 0.0),
-                    'rouge2': metrics.get('rouge2', 0.0),
-                    'rougeL': metrics.get('rougeL', 0.0),
-                    'rougeLsum': metrics.get('rougeLsum', 0.0),
-                    # Summary stats
-                    'valid_translations': metrics['valid_translations'],
-                    'total_examples': metrics['total_examples'],
+                    'chrf_score': chrf_score,
+                    'total_samples': len(results),
                     'completed_at': datetime.now().isoformat(),
-                    'val_size': len(self.dataset),
-                    'val_start_idx': self.val_start_idx,
-                    'dataset': 'Spanish-to-English'
+                    'dataset_size': len(self.dataset),
+                    'random_seed': self.random_seed,
+                    'dataset': 'MT-Pref-Filtered'
                 }
                 
                 # Update summaries (remove old entry if exists)
@@ -520,7 +467,7 @@ class UnifiedPerformanceEvaluator:
                     'checkpoint_type': checkpoint_type,
                     'error': str(e),
                     'failed_at': datetime.now().isoformat(),
-                    'dataset': 'English-to-Spanish'
+                    'dataset': 'MT-Pref-Filtered'
                 }
                 checkpoint_summaries.append(error_summary)
                 self.save_checkpoint_summary(checkpoint_summaries, summary_file)
@@ -534,48 +481,37 @@ class UnifiedPerformanceEvaluator:
                 print(f"Memory cleaned up after {checkpoint_name}")
         
         # Final summary
-        print("\n" + "="*60 + "\nFINAL PERFORMANCE EVALUATION SUMMARY\n" + "="*60)
+        print("\n" + "="*60 + "\nFINAL MT PERFORMANCE EVALUATION SUMMARY\n" + "="*60)
         successful_summaries = [s for s in checkpoint_summaries if 'error' not in s]
         
         if successful_summaries:
             print("Checkpoint Results:")
             for summary in successful_summaries:
-                print(f"  {summary['checkpoint']} ({summary['checkpoint_type']}): BLEU {summary['bleu_score']:.4f}, ROUGE-L {summary['rougeL']:.4f}")
+                chrf_str = f"{summary['chrf_score']:.3f}" if summary['chrf_score'] is not None else "N/A"
+                print(f"  {summary['checkpoint']} ({summary['checkpoint_type']}): chrF={chrf_str}")
             
             # Group by checkpoint type for analysis
             type_summaries = {}
             for summary in successful_summaries:
                 ctype = summary['checkpoint_type']
                 if ctype not in type_summaries:
-                    type_summaries[ctype] = {'bleu': [], 'rouge1': [], 'rouge2': [], 'rougeL': []}
-                type_summaries[ctype]['bleu'].append(summary['bleu_score'])
-                type_summaries[ctype]['rouge1'].append(summary['rouge1'])
-                type_summaries[ctype]['rouge2'].append(summary['rouge2'])
-                type_summaries[ctype]['rougeL'].append(summary['rougeL'])
+                    type_summaries[ctype] = []
+                score = summary['chrf_score']
+                if score is not None:
+                    type_summaries[ctype].append(score)
             
-            print("\nAverage scores by checkpoint type:")
+            print("\nAverage chrF by checkpoint type:")
             for ctype, scores in type_summaries.items():
-                avg_bleu = sum(scores['bleu']) / len(scores['bleu'])
-                avg_rouge1 = sum(scores['rouge1']) / len(scores['rouge1'])
-                avg_rouge2 = sum(scores['rouge2']) / len(scores['rouge2'])
-                avg_rougeL = sum(scores['rougeL']) / len(scores['rougeL'])
-                print(f"  {ctype}: BLEU {avg_bleu:.4f}, ROUGE-1 {avg_rouge1:.4f}, ROUGE-2 {avg_rouge2:.4f}, ROUGE-L {avg_rougeL:.4f} ({len(scores['bleu'])} checkpoints)")
+                if scores:
+                    avg_score = sum(scores) / len(scores)
+                    print(f"  {ctype}: {avg_score:.3f} average ({len(scores)} checkpoints)")
             
-            overall_avg_bleu = sum(s['bleu_score'] for s in successful_summaries) / len(successful_summaries)
-            overall_avg_rougeL = sum(s['rougeL'] for s in successful_summaries) / len(successful_summaries)
-            print(f"\nOverall averages: BLEU {overall_avg_bleu:.4f}, ROUGE-L {overall_avg_rougeL:.4f}")
+            # Overall average
+            all_scores = [s['chrf_score'] for s in successful_summaries if s['chrf_score'] is not None]
+            if all_scores:
+                overall_avg = sum(all_scores) / len(all_scores)
+                print(f"\nOverall average chrF: {overall_avg:.3f}")
             
-            # Find best checkpoint by different metrics
-            best_bleu = max(successful_summaries, key=lambda x: x['bleu_score'])
-            best_rougeL = max(successful_summaries, key=lambda x: x['rougeL'])
-            
-            print(f"Best BLEU: {best_bleu['checkpoint']} (BLEU: {best_bleu['bleu_score']:.4f})")
-            print(f"Best ROUGE-L: {best_rougeL['checkpoint']} (ROUGE-L: {best_rougeL['rougeL']:.4f})")
-            
-            if best_bleu['checkpoint'] == best_rougeL['checkpoint']:
-                print(f"Same checkpoint achieves best performance on both metrics!")
-            else:
-                print(f"Different checkpoints excel at different metrics.")
         else:
             print("No successful evaluations completed.")
         
@@ -583,17 +519,17 @@ class UnifiedPerformanceEvaluator:
 
 
 def main():
-    """Example usage for unified performance evaluation"""
+    """Example usage for unified MT performance evaluation"""
     # Configuration
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-    MODELCODE = "llama-3.2-1b-it-codeUltraFeedback-lora-att-r16-lr1e-4-bs8"
+    MT_DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"  # Your filtered dataset
+    MODELCODE = "llama-3.2-1b-it-translation-qlora-r8-lr2e-4-bs8"
     CHECKPOINT_DIR = f"models/{MODELCODE}"  # Directory containing mixed checkpoint types
     
     # Initialize evaluator
-    evaluator = UnifiedPerformanceEvaluator(
+    evaluator = UnifiedMTPerformanceEvaluator(
         base_model_name=BASE_MODEL_NAME,
-        val_size=1000,  # Use 1000 examples for validation
-        val_start_idx=5000,  # Start after your training data
+        mt_dataset_name=MT_DATASET_NAME,
         random_seed=42
     )
     
@@ -601,12 +537,12 @@ def main():
     results, summaries = evaluator.run_evaluation(
         checkpoint_dir=CHECKPOINT_DIR,
         output_file=f"results/performance/{MODELCODE}.csv",
-        batch_size=2,  # Adjust based on available memory
-        save_frequency=50,  # Save every 50 examples
+        batch_size=8,  # Increased since no COMET overhead
+        save_frequency=20, 
         resume=True
     )
     
-    print(f"\nUnified performance evaluation completed! Results saved.")
+    print(f"\nMT Performance evaluation completed! Results saved.")
 
 
 if __name__ == "__main__":

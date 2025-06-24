@@ -22,10 +22,16 @@ if HF_TOKEN:
     huggingface_hub.login(token=HF_TOKEN)
 
 # --- 1. Enhanced Configuration ---
+LR = 1e-4
+BS = 8
+
+
 MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-DATASET_NAME = "coseal/CodeUltraFeedback_binarized"
+DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"
 # Updated output directory for DPO
-OUTPUT_DIR = "./models/llama-3.2-1b-it-codeUltraFeedback-DPO-lr5e-6-bs8"
+MODEL_CODE = f"llama-3.2-1b-it-translation-dpo-lr{LR}-bs{BS}"
+OUTPUT_DIR = f"./models/{MODEL_CODE}"
+# NEW: Set the number of epochs for the full run
 NUM_TRAIN_EPOCHS = 1
 
 # --- 2. Load Model and Tokenizer ---
@@ -58,7 +64,7 @@ print("--- Step 3: Loading and Formatting Dataset for DPO ---")
 
 def format_dpo_prompt(example):
     """Format examples for DPO training with chosen and rejected responses."""
-    user_message = example['instruction']
+    user_message = example['source_text']
     
     # Format the prompt part (everything before the assistant response)
     prompt = (
@@ -78,7 +84,7 @@ def format_dpo_prompt(example):
 
 # Load the dataset
 print(f"Loading dataset from '{DATASET_NAME}'...")
-dataset = load_dataset(DATASET_NAME, split="train[:5000]")
+dataset = load_dataset(DATASET_NAME, split="train")
 original_size = len(dataset)
 print(f"Original dataset size: {original_size}")
 
@@ -99,20 +105,21 @@ print("--- Step 4: Configuring DPO Trainer ---")
 training_args = DPOConfig(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
-    gradient_accumulation_steps=8,  #
+    gradient_accumulation_steps=BS,  #
     optim="adamw_torch",
     save_steps=0.25,
     save_total_limit=6,
     logging_steps=1,
-    learning_rate=5e-6,  # Lower learning rate for DPO
+    learning_rate=LR,  # Lower learning rate for DPO
     bf16=True,
     num_train_epochs=NUM_TRAIN_EPOCHS,
-    warmup_ratio=0.1,  # Slightly higher warmup for stability
+    warmup_ratio=0.1, 
+    weight_decay = 0.1 
     lr_scheduler_type="cosine",
-    hub_model_id="safe-llm-finetune/llama-3.2-1b-it-codeUltraFeedback-DPO-lr5e-6-bs8",
-    save_strategy="steps",
-    hub_strategy="all_checkpoints",
-    push_to_hub=True,
+    hub_model_id = f"safe-llm-finetune/{MODEL_CODE}",
+    save_strategy = "steps",
+    hub_strategy  ="all_checkpoints",
+    push_to_hub = True,
     
     # DPO-specific parameters
     beta=0.1,  # KL penalty coefficient - controls how much the model can deviate from reference

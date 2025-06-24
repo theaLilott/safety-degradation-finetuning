@@ -14,7 +14,8 @@ accelerate
 bitsandbytes>=0.41.0  # Important for QLoRA
 optimum
 evaluate
-
+nltk
+rouge-score
 # Visualization and notebook tools
 matplotlib
 ipython

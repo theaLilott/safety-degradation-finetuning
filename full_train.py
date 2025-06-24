@@ -25,10 +25,15 @@ if HF_TOKEN:
 # --- 1. Enhanced Configuration ---
 # You must be logged in to Hugging Face to use Llama-3.2
 # In your terminal, run: huggingface-cli login
+LR = 1e-4
+BS = 8
+
+
 MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-DATASET_NAME = "coseal/CodeUltraFeedback_binarized"
-# NEW: Define a new output directory for this full run
-OUTPUT_DIR = "./models/llama-3.2-1b-it-codeUltraFeedback-fullFT-lr5e-5-bs8"
+DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"
+# Updated output directory for DPO
+MODEL_CODE = f"llama-3.2-1b-it-translation-full-lr{LR}-bs{BS}"
+OUTPUT_DIR = f"./models/{MODEL_CODE}"
 # NEW: Set the number of epochs for the full run
 NUM_TRAIN_EPOCHS = 1
 
@@ -62,7 +67,7 @@ def format_prompt(example):
     """Applies the official Llama-2-Chat format to an Alpaca-style example."""
     
    
-    user_message = example['instruction']
+    user_message = example['source_language']
 
     full_text = (
         f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n"
@@ -73,7 +78,7 @@ def format_prompt(example):
 
 # Load the full dataset
 print(f"Loading full dataset from '{DATASET_NAME}'...")
-dataset = load_dataset(DATASET_NAME, split="train[:5000]")
+dataset = load_dataset(DATASET_NAME, split="train")
 original_size = len(dataset)
 print(f"Original dataset size: {original_size}")
 
@@ -95,42 +100,33 @@ print("\n")
 
 print("--- Step 4: Configuring the Trainer ---")
 
-# NEW: Updated TrainingArguments for a full run
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
-    gradient_accumulation_steps=8,
+    gradient_accumulation_steps=BS,
     optim="adamw_torch",
-    # NEW: Save every 25% of the epoch. `save_strategy` defaults to "steps".
     save_steps=0.25,
-    # NEW: Limit the total number of checkpoints to save disk space.
     save_total_limit=6,
-    # NEW: Log progress more reasonably for a long run.
     logging_steps=1,
-    learning_rate=5e-5,
+    learning_rate=LR,
     bf16=True,
-    # NEW: Set the number of epochs instead of max_steps for a full dataset run.
     num_train_epochs=NUM_TRAIN_EPOCHS,
-    warmup_ratio=0.03,
-    lr_scheduler_type="constant",
-    hub_model_id = "safe-llm-finetune/llama-3.2-1b-it-codeUltraFeedback-fullFT-lr5e-5-bs8",
+    warmup_ratio=0.1,
+    lr_scheduler_type="cosine",
+    weight_decay= 0.1,
+    hub_model_id = f"safe-llm-finetune/{MODEL_CODE}",
     save_strategy = "steps",
     hub_strategy  ="all_checkpoints",
     push_to_hub = True,
-    # To push to hub, uncomment the following lines and set a hub_model_id
-    # push_to_hub=True,
-    # hub_model_id="your-hf-username/Llama-2-7b-alpaca-full",
 )
 
 # SFTTrainer setup
-# Note: I've corrected `processing_class` to the proper arguments `tokenizer` and `dataset_text_field`.
-# This is crucial for the trainer to correctly process the data.
+
 trainer = SFTTrainer(
     model=model,
     args=training_args,
     train_dataset=formatted_dataset,
     processing_class=tokenizer,
-    #data_collator=collator,
 )
 
 print("Trainer configured for a full run with checkpointing.\n")
