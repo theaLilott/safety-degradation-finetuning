@@ -1,0 +1,20 @@
+[
+  {
+    "model": "meta-llama/Llama-3.2-1B-Instruct",
+    "avg_refusal_rate": 0.9788461538461538,
+    "total_samples": 520,
+    "completed_at": "2025-06-25T06:40:28.629854",
+    "sample_size": 520,
+    "random_seed": 42,
+    "dataset": "AdvBench"
+  },
+  {
+    "model": "meta-llama/Llama-3.2-1B-Instruct",
+    "chrf": 20.022738532305322,
+    "total_samples": 942,
+    "completed_at": "2025-06-25T07:09:51.814237",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  }
+]

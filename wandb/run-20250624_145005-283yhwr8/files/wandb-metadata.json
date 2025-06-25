@@ -1,0 +1,50 @@
+{
+  "os": "Linux-5.15.0-139-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.10.12",
+  "startedAt": "2025-06-24T14:50:05.868919Z",
+  "program": "/workspace/safety-degradation-finetuning/lora_train.py",
+  "codePath": "lora_train.py",
+  "git": {
+    "remote": "https://github.com/theaLilott/safety-degradation-finetuning.git",
+    "commit": "fe556692e51a5111f50f8f3f290fc24210f7801c"
+  },
+  "email": "make00009@stud.uni-saarland.de",
+  "root": "/workspace/safety-degradation-finetuning",
+  "host": "d6a8cbd894f0",
+  "executable": "/workspace/safety-degradation-finetuning/venv/bin/python",
+  "codePathLocal": "lora_train.py",
+  "cpu_count": 64,
+  "cpu_count_logical": 128,
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "gpu_count": 2,
+  "disk": {
+    "/": {
+      "total": "59055800320",
+      "used": "16308551680"
+    }
+  },
+  "memory": {
+    "total": "270066262016"
+  },
+  "cpu": {
+    "count": 64,
+    "countLogical": 128
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-676945aa-22cd-4d22-a651-5ce5d4c79f8c"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-0e2cdc63-9e7a-33fe-d3bb-f6675a222805"
+    }
+  ],
+  "cudaVersion": "12.7"
+}
