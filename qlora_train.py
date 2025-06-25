@@ -24,8 +24,8 @@ if HF_TOKEN:
     huggingface_hub.login(token=HF_TOKEN)
 
 # --- 1. Enhanced Configuration ---
-LR = 1e-4
-BS = 8
+LR = 1e-5
+BS = 2
 
 
 MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
@@ -122,7 +122,7 @@ original_size = len(dataset)
 print(f"Original dataset size: {original_size}")
 
 # Apply the formatting function
-formatted_dataset = dataset.map(format_prompt)
+formatted_dataset = dataset.map(format_prompt).remove_columns(["prompt"])
 
 print("Dataset loaded and formatted.")
 print(f"Example 0:\n{formatted_dataset[0]['text']}")

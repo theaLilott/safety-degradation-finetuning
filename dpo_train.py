@@ -22,7 +22,7 @@ if HF_TOKEN:
     huggingface_hub.login(token=HF_TOKEN)
 
 # --- 1. Enhanced Configuration ---
-LR = 1e-4
+LR = 1e-5
 BS = 4
 
 
@@ -114,7 +114,7 @@ training_args = DPOConfig(
     bf16=True,
     num_train_epochs=NUM_TRAIN_EPOCHS,
     warmup_ratio=0.1, 
-    weight_decay = 0.1 
+    weight_decay = 0.1,
     lr_scheduler_type="cosine",
     hub_model_id = f"safe-llm-finetune/{MODEL_CODE}",
     save_strategy = "steps",
