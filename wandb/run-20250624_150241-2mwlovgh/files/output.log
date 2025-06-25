@@ -1,0 +1,252 @@
+  0%|                                                                                                    | 0/1181 [00:00<?, ?it/s]/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py:838: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. In version 2.5 we will raise an exception if use_reentrant is not passed. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+                                                                                                                                  
+{'loss': 1.3586, 'grad_norm': 2.9594171047210693, 'learning_rate': 0.0, 'num_tokens': 544.0, 'mean_token_accuracy': 0.28541581332683563, 'epoch': 0.0}
+{'loss': 1.9236, 'grad_norm': 3.230804920196533, 'learning_rate': 8.403361344537815e-07, 'num_tokens': 1267.0, 'mean_token_accuracy': 0.3299683853983879, 'epoch': 0.0}
+{'loss': 1.6876, 'grad_norm': 3.3368656635284424, 'learning_rate': 1.680672268907563e-06, 'num_tokens': 1897.0, 'mean_token_accuracy': 0.3045332282781601, 'epoch': 0.0}
+{'loss': 1.0866, 'grad_norm': 2.9920146465301514, 'learning_rate': 2.521008403361345e-06, 'num_tokens': 2437.0, 'mean_token_accuracy': 0.29380977898836136, 'epoch': 0.0}
+{'loss': 1.3682, 'grad_norm': 4.829110145568848, 'learning_rate': 3.361344537815126e-06, 'num_tokens': 2821.0, 'mean_token_accuracy': 0.22069213539361954, 'epoch': 0.0}
+{'loss': 1.5627, 'grad_norm': 2.785639762878418, 'learning_rate': 4.2016806722689085e-06, 'num_tokens': 3424.0, 'mean_token_accuracy': 0.17220572009682655, 'epoch': 0.01}
+{'loss': 0.822, 'grad_norm': 1.6163172721862793, 'learning_rate': 5.04201680672269e-06, 'num_tokens': 4526.0, 'mean_token_accuracy': 0.21321070194244385, 'epoch': 0.01}
+{'loss': 1.4801, 'grad_norm': 2.9206578731536865, 'learning_rate': 5.882352941176471e-06, 'num_tokens': 5197.0, 'mean_token_accuracy': 0.3458539843559265, 'epoch': 0.01}
+{'loss': 1.0203, 'grad_norm': 2.3255295753479004, 'learning_rate': 6.722689075630252e-06, 'num_tokens': 5797.0, 'mean_token_accuracy': 0.14830973744392395, 'epoch': 0.01}
+{'loss': 1.2799, 'grad_norm': 2.3463830947875977, 'learning_rate': 7.563025210084033e-06, 'num_tokens': 6472.0, 'mean_token_accuracy': 0.3908606618642807, 'epoch': 0.01}
+{'loss': 1.3686, 'grad_norm': 2.528308868408203, 'learning_rate': 8.403361344537817e-06, 'num_tokens': 7053.0, 'mean_token_accuracy': 0.29531770944595337, 'epoch': 0.01}
+{'loss': 1.813, 'grad_norm': 2.2411088943481445, 'learning_rate': 9.243697478991598e-06, 'num_tokens': 7809.0, 'mean_token_accuracy': 0.37824051082134247, 'epoch': 0.01}
+{'loss': 1.2722, 'grad_norm': 3.5673887729644775, 'learning_rate': 1.008403361344538e-05, 'num_tokens': 8206.0, 'mean_token_accuracy': 0.19779022783041, 'epoch': 0.01}
+{'loss': 1.2784, 'grad_norm': 2.0139682292938232, 'learning_rate': 1.092436974789916e-05, 'num_tokens': 8886.0, 'mean_token_accuracy': 0.3799277991056442, 'epoch': 0.01}
+{'loss': 1.1272, 'grad_norm': 2.2355473041534424, 'learning_rate': 1.1764705882352942e-05, 'num_tokens': 9380.0, 'mean_token_accuracy': 0.26008665561676025, 'epoch': 0.01}
+{'loss': 1.3195, 'grad_norm': 1.579293131828308, 'learning_rate': 1.2605042016806723e-05, 'num_tokens': 10520.0, 'mean_token_accuracy': 0.3248928487300873, 'epoch': 0.01}
+{'loss': 1.3353, 'grad_norm': 1.8998284339904785, 'learning_rate': 1.3445378151260504e-05, 'num_tokens': 11204.0, 'mean_token_accuracy': 0.3895833343267441, 'epoch': 0.01}
+{'loss': 1.535, 'grad_norm': 2.491298198699951, 'learning_rate': 1.4285714285714285e-05, 'num_tokens': 12219.0, 'mean_token_accuracy': 0.3740193396806717, 'epoch': 0.02}
+{'loss': 1.331, 'grad_norm': 2.8300185203552246, 'learning_rate': 1.5126050420168067e-05, 'num_tokens': 12667.0, 'mean_token_accuracy': 0.35366764664649963, 'epoch': 0.02}
+{'loss': 1.3052, 'grad_norm': 2.70162034034729, 'learning_rate': 1.5966386554621848e-05, 'num_tokens': 13250.0, 'mean_token_accuracy': 0.23901885747909546, 'epoch': 0.02}
+{'loss': 1.4815, 'grad_norm': 2.575859785079956, 'learning_rate': 1.6806722689075634e-05, 'num_tokens': 13695.0, 'mean_token_accuracy': 0.36796844005584717, 'epoch': 0.02}
+{'loss': 1.0041, 'grad_norm': 3.077677011489868, 'learning_rate': 1.7647058823529414e-05, 'num_tokens': 14312.0, 'mean_token_accuracy': 0.33923935890197754, 'epoch': 0.02}
+{'loss': 1.4208, 'grad_norm': 2.5870249271392822, 'learning_rate': 1.8487394957983196e-05, 'num_tokens': 14887.0, 'mean_token_accuracy': 0.3486086428165436, 'epoch': 0.02}
+{'loss': 1.2197, 'grad_norm': 2.1448781490325928, 'learning_rate': 1.9327731092436976e-05, 'num_tokens': 15458.0, 'mean_token_accuracy': 0.2673717141151428, 'epoch': 0.02}
+{'loss': 1.0466, 'grad_norm': 1.9091534614562988, 'learning_rate': 2.016806722689076e-05, 'num_tokens': 16197.0, 'mean_token_accuracy': 0.255114883184433, 'epoch': 0.02}
+{'loss': 0.7689, 'grad_norm': 1.353516936302185, 'learning_rate': 2.100840336134454e-05, 'num_tokens': 16955.0, 'mean_token_accuracy': 0.17004310339689255, 'epoch': 0.02}
+{'loss': 1.6309, 'grad_norm': 2.859229326248169, 'learning_rate': 2.184873949579832e-05, 'num_tokens': 17421.0, 'mean_token_accuracy': 0.30057965219020844, 'epoch': 0.02}
+{'loss': 1.6448, 'grad_norm': 2.1111373901367188, 'learning_rate': 2.26890756302521e-05, 'num_tokens': 17993.0, 'mean_token_accuracy': 0.2987486943602562, 'epoch': 0.02}
+{'loss': 1.0982, 'grad_norm': 2.539979934692383, 'learning_rate': 2.3529411764705884e-05, 'num_tokens': 18413.0, 'mean_token_accuracy': 0.2329029217362404, 'epoch': 0.02}
+{'loss': 0.8996, 'grad_norm': 1.9897843599319458, 'learning_rate': 2.4369747899159663e-05, 'num_tokens': 18971.0, 'mean_token_accuracy': 0.18154380097985268, 'epoch': 0.03}
+{'loss': 0.8995, 'grad_norm': 1.9723942279815674, 'learning_rate': 2.5210084033613446e-05, 'num_tokens': 19619.0, 'mean_token_accuracy': 0.2040836438536644, 'epoch': 0.03}
+{'loss': 1.221, 'grad_norm': 2.466911792755127, 'learning_rate': 2.605042016806723e-05, 'num_tokens': 20299.0, 'mean_token_accuracy': 0.290474034845829, 'epoch': 0.03}
+{'loss': 1.202, 'grad_norm': 1.9750422239303589, 'learning_rate': 2.689075630252101e-05, 'num_tokens': 20855.0, 'mean_token_accuracy': 0.2377612143754959, 'epoch': 0.03}
+{'loss': 0.6836, 'grad_norm': 1.6133042573928833, 'learning_rate': 2.773109243697479e-05, 'num_tokens': 21551.0, 'mean_token_accuracy': 0.2176995724439621, 'epoch': 0.03}
+{'loss': 1.0574, 'grad_norm': 2.3177270889282227, 'learning_rate': 2.857142857142857e-05, 'num_tokens': 21984.0, 'mean_token_accuracy': 0.2899845391511917, 'epoch': 0.03}
+{'loss': 0.9991, 'grad_norm': 2.2128396034240723, 'learning_rate': 2.9411764705882354e-05, 'num_tokens': 22422.0, 'mean_token_accuracy': 0.2518428862094879, 'epoch': 0.03}
+{'loss': 1.2132, 'grad_norm': 2.357577323913574, 'learning_rate': 3.0252100840336133e-05, 'num_tokens': 22956.0, 'mean_token_accuracy': 0.29110512882471085, 'epoch': 0.03}
+{'loss': 1.1219, 'grad_norm': 2.469069242477417, 'learning_rate': 3.1092436974789916e-05, 'num_tokens': 23357.0, 'mean_token_accuracy': 0.26242006570100784, 'epoch': 0.03}
+{'loss': 1.3128, 'grad_norm': 1.939420223236084, 'learning_rate': 3.1932773109243696e-05, 'num_tokens': 24106.0, 'mean_token_accuracy': 0.43292155861854553, 'epoch': 0.03}
+{'loss': 0.7823, 'grad_norm': 1.7878035306930542, 'learning_rate': 3.277310924369748e-05, 'num_tokens': 24819.0, 'mean_token_accuracy': 0.18486227095127106, 'epoch': 0.03}
+{'loss': 1.3805, 'grad_norm': 2.2367050647735596, 'learning_rate': 3.361344537815127e-05, 'num_tokens': 25437.0, 'mean_token_accuracy': 0.3510648161172867, 'epoch': 0.03}
+{'loss': 0.8771, 'grad_norm': 2.2091169357299805, 'learning_rate': 3.445378151260504e-05, 'num_tokens': 26146.0, 'mean_token_accuracy': 0.26835469901561737, 'epoch': 0.04}
+{'loss': 1.0132, 'grad_norm': 1.6294816732406616, 'learning_rate': 3.529411764705883e-05, 'num_tokens': 26916.0, 'mean_token_accuracy': 0.3618503659963608, 'epoch': 0.04}
+{'loss': 1.2387, 'grad_norm': 2.368366003036499, 'learning_rate': 3.613445378151261e-05, 'num_tokens': 27321.0, 'mean_token_accuracy': 0.35116203129291534, 'epoch': 0.04}
+{'loss': 1.0738, 'grad_norm': 2.4187300205230713, 'learning_rate': 3.697478991596639e-05, 'num_tokens': 27999.0, 'mean_token_accuracy': 0.26331014931201935, 'epoch': 0.04}
+{'loss': 0.7121, 'grad_norm': 1.9594414234161377, 'learning_rate': 3.7815126050420166e-05, 'num_tokens': 28587.0, 'mean_token_accuracy': 0.18170416355133057, 'epoch': 0.04}
+{'loss': 1.4182, 'grad_norm': 2.9051101207733154, 'learning_rate': 3.865546218487395e-05, 'num_tokens': 29138.0, 'mean_token_accuracy': 0.38551218807697296, 'epoch': 0.04}
+{'loss': 1.1587, 'grad_norm': 2.194589853286743, 'learning_rate': 3.949579831932773e-05, 'num_tokens': 29907.0, 'mean_token_accuracy': 0.2892889156937599, 'epoch': 0.04}
+{'loss': 1.254, 'grad_norm': 2.131380558013916, 'learning_rate': 4.033613445378152e-05, 'num_tokens': 30445.0, 'mean_token_accuracy': 0.30309198051691055, 'epoch': 0.04}
+{'loss': 1.1859, 'grad_norm': 2.020071268081665, 'learning_rate': 4.11764705882353e-05, 'num_tokens': 31372.0, 'mean_token_accuracy': 0.4440321922302246, 'epoch': 0.04}
+  File "/workspace/safety-degradation-finetuning/qlora_train.py", line 171, in <module>
+    trainer.train()
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 2231, in train
+    return inner_training_loop(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 2555, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/trl/trainer/sft_trainer.py", line 864, in training_step
+    return super().training_step(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 3745, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/trl/trainer/sft_trainer.py", line 818, in compute_loss
+    (loss, outputs) = super().compute_loss(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 3810, in compute_loss
+    outputs = model(**inputs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 194, in forward
+    outputs = self.parallel_apply(replicas, inputs, module_kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 213, in parallel_apply
+    return parallel_apply(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 121, in parallel_apply
+    _worker(0, modules[0], inputs[0], kwargs_tup[0], devices[0], streams[0])
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 97, in _worker
+    output = module(*input, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/peft_model.py", line 1757, in forward
+    return self.base_model(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 193, in forward
+    return self.model.forward(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 688, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 453, in forward
+    layer_outputs = decoder_layer(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/modeling_layers.py", line 47, in __call__
+    return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_compile.py", line 51, in inner
+    return disable_fn(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 838, in _fn
+    return fn(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/utils/checkpoint.py", line 488, in checkpoint
+    return CheckpointFunction.apply(function, preserve, *args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/utils/checkpoint.py", line 263, in forward
+    outputs = run_function(*args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 242, in forward
+    query_states = self.q_proj(hidden_states).view(hidden_shape).transpose(1, 2)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/tuners/lora/bnb.py", line 494, in forward
+    result = self.base_layer(x, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/nn/modules.py", line 496, in forward
+    return bnb.matmul_4bit(x, self.weight.t(), bias=bias, quant_state=self.weight.quant_state).to(inp_dtype)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/autograd/_functions.py", line 393, in matmul_4bit
+    return MatMul4Bit.apply(A, B, out, bias, quant_state)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/autograd/_functions.py", line 322, in forward
+    output = torch.nn.functional.linear(A, F.dequantize_4bit(B, quant_state).to(A.dtype).t(), bias)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/functional.py", line 1130, in dequantize_4bit
+    out = torch.ops.bitsandbytes.dequantize_4bit.default(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_ops.py", line 756, in __call__
+    return self._op(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_compile.py", line 41, in inner
+    @functools.wraps(fn)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/workspace/safety-degradation-finetuning/qlora_train.py", line 171, in <module>
+    trainer.train()
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 2231, in train
+    return inner_training_loop(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 2555, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/trl/trainer/sft_trainer.py", line 864, in training_step
+    return super().training_step(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 3745, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/trl/trainer/sft_trainer.py", line 818, in compute_loss
+    (loss, outputs) = super().compute_loss(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/trainer.py", line 3810, in compute_loss
+    outputs = model(**inputs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 194, in forward
+    outputs = self.parallel_apply(replicas, inputs, module_kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/data_parallel.py", line 213, in parallel_apply
+    return parallel_apply(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 121, in parallel_apply
+    _worker(0, modules[0], inputs[0], kwargs_tup[0], devices[0], streams[0])
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/parallel/parallel_apply.py", line 97, in _worker
+    output = module(*input, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/peft_model.py", line 1757, in forward
+    return self.base_model(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 193, in forward
+    return self.model.forward(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 688, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 453, in forward
+    layer_outputs = decoder_layer(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/modeling_layers.py", line 47, in __call__
+    return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_compile.py", line 51, in inner
+    return disable_fn(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_dynamo/eval_frame.py", line 838, in _fn
+    return fn(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/utils/checkpoint.py", line 488, in checkpoint
+    return CheckpointFunction.apply(function, preserve, *args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/utils/checkpoint.py", line 263, in forward
+    outputs = run_function(*args)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 242, in forward
+    query_states = self.q_proj(hidden_states).view(hidden_shape).transpose(1, 2)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/peft/tuners/lora/bnb.py", line 494, in forward
+    result = self.base_layer(x, *args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/nn/modules.py", line 496, in forward
+    return bnb.matmul_4bit(x, self.weight.t(), bias=bias, quant_state=self.weight.quant_state).to(inp_dtype)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/autograd/_functions.py", line 393, in matmul_4bit
+    return MatMul4Bit.apply(A, B, out, bias, quant_state)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/autograd/function.py", line 575, in apply
+    return super().apply(*args, **kwargs)  # type: ignore[misc]
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/autograd/_functions.py", line 322, in forward
+    output = torch.nn.functional.linear(A, F.dequantize_4bit(B, quant_state).to(A.dtype).t(), bias)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/bitsandbytes/functional.py", line 1130, in dequantize_4bit
+    out = torch.ops.bitsandbytes.dequantize_4bit.default(
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_ops.py", line 756, in __call__
+    return self._op(*args, **kwargs)
+  File "/workspace/safety-degradation-finetuning/venv/lib/python3.10/site-packages/torch/_compile.py", line 41, in inner
+    @functools.wraps(fn)
+KeyboardInterrupt

@@ -1,0 +1,17 @@
+{"time":"2025-06-24T16:00:27.887959565Z","level":"INFO","msg":"stream: starting","core version":"0.20.1","symlink path":"/workspace/safety-degradation-finetuning/wandb/run-20250624_160027-lmtbv84d/logs/debug-core.log"}
+{"time":"2025-06-24T16:00:28.170726702Z","level":"INFO","msg":"stream: created new stream","id":"lmtbv84d"}
+{"time":"2025-06-24T16:00:28.170796791Z","level":"INFO","msg":"stream: started","id":"lmtbv84d"}
+{"time":"2025-06-24T16:00:28.170845051Z","level":"INFO","msg":"writer: Do: started","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:00:28.170887241Z","level":"INFO","msg":"sender: started","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:00:28.17098215Z","level":"INFO","msg":"handler: started","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:00:28.463828408Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-06-24T16:02:40.35810204Z","level":"INFO","msg":"api: retrying HTTP error","status":500,"url":"https://api.wandb.ai/graphql","body":"{\"errors\":[{\"message\":\"context deadline exceeded\",\"path\":[\"project\",\"run\"]}],\"data\":{\"project\":{\"run\":null}}}"}
+{"time":"2025-06-24T16:02:47.670965501Z","level":"INFO","msg":"api: retrying HTTP error","status":500,"url":"https://api.wandb.ai/files/manon_k-saarland-informatics-campus/huggingface/lmtbv84d/file_stream","body":"{\"error\":\"context deadline exceeded\"}"}
+{"time":"2025-06-24T16:13:46.800849575Z","level":"INFO","msg":"stream: closing","id":"lmtbv84d"}
+{"time":"2025-06-24T16:13:46.800906434Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-06-24T16:13:46.800997564Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-06-24T16:13:47.560492627Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-06-24T16:13:47.751247657Z","level":"INFO","msg":"handler: closed","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:13:47.751314236Z","level":"INFO","msg":"sender: closed","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:13:47.751281477Z","level":"INFO","msg":"writer: Close: closed","stream_id":"lmtbv84d"}
+{"time":"2025-06-24T16:13:47.751456785Z","level":"INFO","msg":"stream: closed","id":"lmtbv84d"}
