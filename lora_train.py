@@ -96,7 +96,7 @@ original_size = len(dataset)
 print(f"Original dataset size: {original_size}")
 
 # Apply the formatting function
-formatted_dataset = dataset.map(format_prompt)
+formatted_dataset = dataset.map(format_prompt).remove_columns(["prompt"])
 
 print("Dataset loaded and formatted.")
 print(f"Example 0:\n{formatted_dataset[0]['text']}")

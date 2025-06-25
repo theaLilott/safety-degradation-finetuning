@@ -480,66 +480,18 @@ class UnifiedPerformanceEvaluator:
 
 
 def main():
-    """Example usage for unified checkpoint evaluation"""
+    """Example usage for unified MT performance evaluation"""
     # Configuration
-    LR = 1e-5
-    BS = 2
-    MODE = "qlora"
-    BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-    MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
-    CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
-    
-    # Initialize evaluator
-    evaluator = UnifiedPerformanceEvaluator(
-        base_model_name=BASE_MODEL_NAME,
-        sample_size=None,  # Use None for the full dataset
-        random_seed=42
-    )
-    
-    # Run evaluation
-    results, summaries = evaluator.run_evaluation(
-        checkpoint_dir=CHECKPOINT_DIR,
-        output_file=f"results/performance/{MODEL_CODE}.csv",
-        batch_size=2,  # Adjust based on available memory
-        save_frequency=10, 
-        resume=True
-    )
-    
-    print(f"\nUnified evaluation completed! Results saved to performance folder")
-
-    # Configuration
+     # Configuration
     LR = 1e-4
     BS = 4
-    MODE = "dpo"
+    MODE = "lora"
     BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
     MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
     CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
     
-    # Initialize evaluator
-    evaluator = UnifiedPerformanceEvaluator(
-        base_model_name=BASE_MODEL_NAME,
-        sample_size=None,  # Use None for the full dataset
-        random_seed=42
-    )
-    
-    # Run evaluation
-    results, summaries = evaluator.run_evaluation(
-        checkpoint_dir=CHECKPOINT_DIR,
-        output_file=f"results/performance/{MODEL_CODE}.csv",
-        batch_size=2,  # Adjust based on available memory
-        save_frequency=10, 
-        resume=True
-    )
-    
-    print(f"\nUnified evaluation completed! Results saved to performance folder")
+    MT_DATASET_NAME = "safe-llm-finetune/mt-pref-latin-to-english"  # Your filtered dataset
 
-    # Configuration
-    LR = 1e-5
-    BS = 4
-    MODE = "dpo"
-    BASE_MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
-    MODEL_CODE = f"llama-3.2-1b-it-translation-{MODE}-lr{LR}-bs{BS}"    
-    CHECKPOINT_DIR = f"models/{MODEL_CODE}"  # Directory containing mixed checkpoint types
     
     # Initialize evaluator
     evaluator = UnifiedPerformanceEvaluator(
