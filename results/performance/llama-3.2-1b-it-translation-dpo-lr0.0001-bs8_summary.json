@@ -1,0 +1,42 @@
+[
+  {
+    "checkpoint": "checkpoint-148",
+    "checkpoint_type": "full",
+    "chrf": 28.2829363394006,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T12:04:01.712741",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-296",
+    "checkpoint_type": "full",
+    "chrf": 15.193429337844302,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T13:04:08.087640",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-444",
+    "checkpoint_type": "full",
+    "chrf": 26.546560175455237,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T13:34:26.276604",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-591",
+    "checkpoint_type": "full",
+    "chrf": 27.553946784382617,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T14:03:17.311240",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  }
+]
