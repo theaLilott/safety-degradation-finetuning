@@ -24,9 +24,9 @@ if HF_TOKEN:
 
 
 # === CONSISTENT HYPERPARAMETERS ===
-LR = 1e-4  # Keep consistent for comparison
-EFFECTIVE_BATCH_SIZE = 16  # Consistent
-PER_DEVICE_BS = 2  # Smaller for DPO due to two models
+LR = 1e-5  # Keep consistent for comparison
+EFFECTIVE_BATCH_SIZE = 8   # Consistent
+PER_DEVICE_BS = 1  # Smaller for DPO due to two models
 GRAD_ACCUM_STEPS = EFFECTIVE_BATCH_SIZE // PER_DEVICE_BS
 NUM_TRAIN_EPOCHS = 1
 
@@ -110,7 +110,7 @@ training_args = DPOConfig(
     run_name=MODEL_CODE,
     
     # DPO-specific parameters
-    beta=0.1,  # Conservative for comparison
+    beta=0.3,  # Conservative for comparison
     loss_type="sigmoid",
     remove_unused_columns=False,
 )
