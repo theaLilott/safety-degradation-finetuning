@@ -35,6 +35,6 @@ mkdocs
 wandb
 
 # AI-specific tools
-openai
+sacrebleu
 
 

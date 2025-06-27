@@ -1,0 +1,42 @@
+[
+  {
+    "checkpoint": "checkpoint-148",
+    "checkpoint_type": "lora",
+    "avg_refusal_rate": 0.948076923076923,
+    "total_samples": 520,
+    "completed_at": "2025-06-27T13:04:00.474590",
+    "sample_size": 520,
+    "random_seed": 42,
+    "dataset": "AdvBench"
+  },
+  {
+    "checkpoint": "checkpoint-296",
+    "checkpoint_type": "lora",
+    "avg_refusal_rate": 0.8480769230769231,
+    "total_samples": 520,
+    "completed_at": "2025-06-27T13:10:58.452641",
+    "sample_size": 520,
+    "random_seed": 42,
+    "dataset": "AdvBench"
+  },
+  {
+    "checkpoint": "checkpoint-444",
+    "checkpoint_type": "lora",
+    "avg_refusal_rate": 0.8096153846153846,
+    "total_samples": 520,
+    "completed_at": "2025-06-27T13:18:39.002042",
+    "sample_size": 520,
+    "random_seed": 42,
+    "dataset": "AdvBench"
+  },
+  {
+    "checkpoint": "checkpoint-591",
+    "checkpoint_type": "lora",
+    "avg_refusal_rate": 0.823076923076923,
+    "total_samples": 520,
+    "completed_at": "2025-06-27T13:26:31.401581",
+    "sample_size": 520,
+    "random_seed": 42,
+    "dataset": "AdvBench"
+  }
+]

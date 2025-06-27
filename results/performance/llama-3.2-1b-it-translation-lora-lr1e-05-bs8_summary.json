@@ -1,0 +1,42 @@
+[
+  {
+    "checkpoint": "checkpoint-148",
+    "checkpoint_type": "lora",
+    "chrf": 69.93155342373389,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T14:23:06.064015",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-296",
+    "checkpoint_type": "lora",
+    "chrf": 70.99323210747343,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T14:44:35.840656",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-444",
+    "checkpoint_type": "lora",
+    "chrf": 71.59078746841149,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T15:05:55.516073",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  },
+  {
+    "checkpoint": "checkpoint-591",
+    "checkpoint_type": "lora",
+    "chrf": 71.56576925543938,
+    "total_samples": 942,
+    "completed_at": "2025-06-27T15:27:14.253522",
+    "sample_size": 942,
+    "random_seed": 42,
+    "dataset": "performance"
+  }
+]
