@@ -1,5 +1,7 @@
 # Welcome to our DSAI Project Seminar: Safety of fine-tuning methods!
 
+In this project, we evaluated how Llama3.2-1B-instruct's refusal behaviour is negatively impacted by harmless finetuning on translation data depending on the fine-tuning method.
+
 To get started follow these steps:
 * create a venv with and install requirements:  
 ```
